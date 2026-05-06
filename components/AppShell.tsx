@@ -21,8 +21,15 @@ export default function AppShell({ user, isAdmin }: AppShellProps) {
   const { t, i18n } = useTranslation()
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [showProfile, setShowProfile] = useState(false)
+  const [showEditProfile, setShowEditProfile] = useState(false)
   const [profile, setProfile] = useState<any>(null)
   const [announcement, setAnnouncement] = useState<any>(null)
+  const [editForm, setEditForm] = useState({
+    full_name: '',
+    department: '',
+    section: '',
+    phone: '',
+  })
 
   useEffect(() => {
     loadProfile()
@@ -43,6 +50,26 @@ export default function AppShell({ user, isAdmin }: AppShellProps) {
       .eq('id', user.id)
       .single()
     setProfile(data)
+    if (data) {
+      setEditForm({
+        full_name: data.full_name || '',
+        department: data.department || '',
+        section: data.section || '',
+        phone: data.phone || '',
+      })
+    }
+  }
+
+  const handleUpdateProfile = async () => {
+    const { error } = await supabase
+      .from('profiles')
+      .update(editForm)
+      .eq('id', user.id)
+    
+    if (!error) {
+      setShowEditProfile(false)
+      loadProfile()
+    }
   }
 
   const loadAnnouncement = async () => {
@@ -169,16 +196,137 @@ export default function AppShell({ user, isAdmin }: AppShellProps) {
             
             <div className="space-y-2 text-sm text-gray-300">
               <p><span className="text-neon-blue">📧 Email:</span> {user.email}</p>
+              <p><span className="text-neon-blue">🏢 Jabatan:</span> {profile?.department || '-'}</p>
+              <p><span className="text-neon-blue">📂 Seksyen:</span> {profile?.section || '-'}</p>
+              <p><span className="text-neon-blue">📱 Telefon:</span> {profile?.phone || '-'}</p>
               <p><span className="text-neon-blue">🆔 ID:</span> {user.id.slice(0, 8)}...</p>
               <p><span className="text-neon-blue">📅 Joined:</span> {new Date(profile?.created_at).toLocaleDateString('ms-MY')}</p>
+              <p><span className="text-neon-blue">🕐 Last Login:</span> {new Date(user.last_sign_in_at || profile?.updated_at).toLocaleString('ms-MY')}</p>
             </div>
 
-            <button
-              onClick={handleLogout}
-              className="w-full mt-4 btn-secondary py-2 rounded-lg text-sm"
-            >
-              🚪 {t('nav.logout')}
-            </button>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => { setShowProfile(false); setShowEditProfile(true); }}
+                className="flex-1 btn-primary py-2 rounded-lg text-sm"
+              >
+                ✏️ Edit Profile
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 btn-secondary py-2 rounded-lg text-sm"
+              >
+                🚪 {t('nav.logout')}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Profile Modal */}
+      <AnimatePresence>
+        {showEditProfile && (
+          <motion.div
+            className="fullscreen-form"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="fullscreen-form-content max-w-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-bebas text-3xl text-neon-blue tracking-wider">
+                  ✏️ EDIT PROFILE
+                </h2>
+                <button
+                  onClick={() => setShowEditProfile(false)}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-700">
+                <img
+                  src={profile?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.email}
+                  alt="Avatar"
+                  className="w-20 h-20 rounded-full border-2 border-neon-blue"
+                />
+                <div>
+                  <h3 className="text-xl font-bold text-white">{user.email}</h3>
+                  <span className={`text-xs px-2 py-1 rounded-full ${isAdmin ? 'bg-neon-purple' : 'bg-neon-blue'} text-white`}>
+                    {isAdmin ? '👑 Super Admin' : '👤 User'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-gray-400 text-sm mb-1 block">Nama Penuh</label>
+                  <input
+                    type="text"
+                    value={editForm.full_name}
+                    onChange={e => setEditForm(prev => ({ ...prev, full_name: e.target.value }))}
+                    className="input-field"
+                    placeholder="Nama penuh anda"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-400 text-sm mb-1 block">Jabatan</label>
+                  <input
+                    type="text"
+                    value={editForm.department}
+                    onChange={e => setEditForm(prev => ({ ...prev, department: e.target.value }))}
+                    className="input-field"
+                    placeholder="Contoh: Bahagian Penguatkuasaan"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-400 text-sm mb-1 block">Seksyen</label>
+                  <input
+                    type="text"
+                    value={editForm.section}
+                    onChange={e => setEditForm(prev => ({ ...prev, section: e.target.value }))}
+                    className="input-field"
+                    placeholder="Contoh: Unit Operasi"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-400 text-sm mb-1 block">No. Telefon</label>
+                  <input
+                    type="tel"
+                    value={editForm.phone}
+                    onChange={e => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                    className="input-field"
+                    placeholder="Contoh: 012-3456789"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-neon-blue/10 border border-neon-blue/30 rounded-lg p-4 mt-6">
+                <p className="text-sm text-gray-300">
+                  <span className="text-neon-blue font-bold">ℹ️ Nota:</span> Maklumat ini akan digunakan untuk autofill dalam borang Punch Card dan Travel Log.
+                </p>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <motion.button
+                  onClick={handleUpdateProfile}
+                  className="btn-primary flex-1 py-3"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  💾 Simpan
+                </motion.button>
+                <button
+                  onClick={() => setShowEditProfile(false)}
+                  className="btn-secondary flex-1 py-3"
+                >
+                  ✕ Batal
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

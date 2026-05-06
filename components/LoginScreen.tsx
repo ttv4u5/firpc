@@ -273,9 +273,10 @@ export default function LoginScreen() {
                       type="text"
                       value={username}
                       onChange={e => setUsername(e.target.value)}
-                      placeholder="admin"
                       className="input-field"
+                      placeholder="admin"
                       required
+                      autoComplete="username"
                     />
                   </div>
                   <div>
@@ -284,10 +285,16 @@ export default function LoginScreen() {
                       type="password"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      placeholder="••••••"
                       className="input-field"
+                      placeholder="••••••"
                       required
+                      autoComplete="current-password"
                     />
+                  </div>
+                  <div className="bg-neon-purple/10 border border-neon-purple/30 rounded-lg p-3 text-xs text-gray-300">
+                    <p className="font-bold text-neon-purple mb-1">🔐 Super Admin Credentials:</p>
+                    <p>Username: <span className="text-white font-mono">admin</span></p>
+                    <p>Password: <span className="text-white font-mono">admin</span></p>
                   </div>
                   {error && (
                     <motion.p
