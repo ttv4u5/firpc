@@ -17,9 +17,9 @@ export default function LoginScreen() {
   const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, size: number, speed: number}>>([])
 
   const animeBackgrounds = [
-    'https://raw.githubusercontent.com/ttv4u1/KP/main/anime1.jpg',
-    'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1920&q=80',
-    'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80',
+    'https://github.com/FDE-X/flexdata/raw/main/assets/b5.jpg',
+    'https://github.com/FDE-X/flexdata/raw/main/assets/b5.jpg',
+    'https://github.com/FDE-X/flexdata/raw/main/assets/b5.jpg',
   ]
 
   useEffect(() => {

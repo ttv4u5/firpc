@@ -78,7 +78,7 @@ export default function AppShell({ user, isAdmin }: AppShellProps) {
       <div 
         className="anime-bg"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1920&q=80)',
+          backgroundImage: 'url(https://github.com/FDE-X/flexdata/raw/main/assets/b5.jpg)',
         }}
       />
 
